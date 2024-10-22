@@ -39,17 +39,17 @@ After running the .slider_solver.exe:
 
 Your input should look like this:
 ```
-    8
-    6
-    1 2 3
-    4 5 6
-    0 7 8
+    8                8
+    -1               2
+    1 2 3            1 0 2
+    4 5 6            3 4 5
+    0 7 8            6 7 8
 ```
 
-Extpected output for the given example is: 
+Extpected output for the given examples is: 
 ```
-    2
-    left
+    2                1
+    left             left
     left
 ```
 
