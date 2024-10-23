@@ -30,11 +30,10 @@ int final_empty_place;
 const int MAP_TABLE_SIZE = 128;
 const int WAYS_VECTOR_RESERVE = 40;
 const int THRESHOLD = 3;
-Coordinats maping_table[MAP_TABLE_SIZE];
-const bool USE_CLOCK = true;
+const bool USE_CLOCK = false;
 int side;
 int curr_threshold = 0;
-int next_threshold = 999;
+int next_threshold = 99999;
 
 struct BoardState
 {
@@ -77,7 +76,7 @@ struct BoardState
 		return *this;
 	}
 
-	int get_manhatan_score() const
+	int get_manhatan_score(Coordinats maping_table[]) const
 	{
 		int sum = 0;
 		bool jump_one = false;
@@ -92,7 +91,7 @@ struct BoardState
 		return sum + moves.size();
 	}
 
-	bool produce_new_states(std::chrono::high_resolution_clock::time_point& start)
+	bool produce_new_states(std::chrono::high_resolution_clock::time_point& start, Coordinats maping_table[])
 	{
 		// UP
 		if (this->board_empty_place.x < side - 1 && (this->moves.size() == 0 || (this->moves.size() > 0 && this->moves[this->moves.size() - 1] != Ways::DOWN)))
@@ -103,13 +102,13 @@ struct BoardState
 			up.board[(board_empty_place.x + 1) * side + board_empty_place.y] = 0;
 			up.board_empty_place.x = board_empty_place.x + 1;
 			up.moves.push_back(Ways::UP);
-			up.manhat_score = up.get_manhatan_score();
+			up.manhat_score = up.get_manhatan_score(maping_table);
 			if (up.manhat_score - up.moves.size() == 0) {
 				up.print_winner(start);
 				return true;
 			}
 			if (up.manhat_score <= curr_threshold) {
-				if (up.produce_new_states(start)) {
+				if (up.produce_new_states(start, maping_table)) {
 					return true;
 				}
 			}
@@ -127,13 +126,13 @@ struct BoardState
 			down.board[(board_empty_place.x - 1) * side + board_empty_place.y] = 0;
 			down.board_empty_place.x = board_empty_place.x - 1;
 			down.moves.push_back(Ways::DOWN);
-			down.manhat_score = down.get_manhatan_score();
+			down.manhat_score = down.get_manhatan_score(maping_table);
 			if (down.manhat_score - down.moves.size() == 0) {
 				down.print_winner(start);
 				return true;
 			}
 			if (down.manhat_score <= curr_threshold) {
-				if (down.produce_new_states(start)) {
+				if (down.produce_new_states(start, maping_table)) {
 					return true;
 				}
 			}
@@ -152,13 +151,13 @@ struct BoardState
 			left.board[board_empty_place.x * side + board_empty_place.y + 1] = 0;
 			left.board_empty_place.y = board_empty_place.y + 1;
 			left.moves.push_back(Ways::LEFT);
-			left.manhat_score = left.get_manhatan_score();
+			left.manhat_score = left.get_manhatan_score(maping_table);
 			if (left.manhat_score - left.moves.size() == 0) {
 				left.print_winner(start);
 				return true;
 			}
 			if (left.manhat_score <= curr_threshold) {
-				if (left.produce_new_states(start)) {
+				if (left.produce_new_states(start, maping_table)) {
 					return true;
 				}
 			}
@@ -176,13 +175,13 @@ struct BoardState
 			right.board[board_empty_place.x * side + board_empty_place.y - 1] = 0;
 			right.board_empty_place.y = board_empty_place.y - 1;
 			right.moves.push_back(Ways::RIGHT);
-			right.manhat_score = right.get_manhatan_score();
+			right.manhat_score = right.get_manhatan_score(maping_table);
 			if (right.manhat_score - right.moves.size() == 0) {
 				right.print_winner(start);
 				return true;
 			}
 			if (right.manhat_score <= curr_threshold) {
-				if (right.produce_new_states(start)) {
+				if (right.produce_new_states(start, maping_table)) {
 					return true;
 				}
 			}
@@ -233,7 +232,7 @@ bool check_if_possible(const BoardState& starting_state)
 	return true;
 }
 
-void map_table()
+void map_table(Coordinats maping_table[])
 {
 	int counter = 1;
 	bool seen = false;
@@ -281,8 +280,10 @@ int main()
 			starting_state.board.push_back(number);
 		}
 	}
+
+	Coordinats maping_table[MAP_TABLE_SIZE];
 	auto start = std::chrono::high_resolution_clock::now();
-	map_table();
+	map_table(maping_table);
 
 	if (!check_if_possible(starting_state))
 	{
@@ -297,7 +298,7 @@ int main()
 		return 0;
 	}
 
-	starting_state.manhat_score = starting_state.get_manhatan_score();
+	starting_state.manhat_score = starting_state.get_manhatan_score(maping_table);
 	if (starting_state.manhat_score == 0)
 	{
 		std::cout << "0\n";
@@ -305,7 +306,7 @@ int main()
 		{
 			auto end = std::chrono::high_resolution_clock::now();
 			std::chrono::duration<double> elapsed = end - start;
-			std::cout << std::fixed << std::setprecision(4);
+			std::cout << std::fixed << std::setprecision(2);
 			std::cout << "Elapsed time: " << elapsed.count() << " seconds\n";
 		}
 		return 0;
@@ -313,7 +314,7 @@ int main()
 
 	while (true)
 	{
-		if (starting_state.produce_new_states(start)) {
+		if (starting_state.produce_new_states(start, maping_table)) {
 			return 0;
 		}
 		else {
