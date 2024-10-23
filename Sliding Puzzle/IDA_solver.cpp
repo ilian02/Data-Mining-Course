@@ -96,98 +96,110 @@ struct BoardState
 		// UP
 		if (this->board_empty_place.x < side - 1 && (this->moves.size() == 0 || (this->moves.size() > 0 && this->moves[this->moves.size() - 1] != Ways::DOWN)))
 		{
-			BoardState up = BoardState();
-			up = deep_copy();
-			up.board[board_empty_place.x * side + board_empty_place.y] = board[(board_empty_place.x + 1) * side + board_empty_place.y];
-			up.board[(board_empty_place.x + 1) * side + board_empty_place.y] = 0;
-			up.board_empty_place.x = board_empty_place.x + 1;
-			up.moves.push_back(Ways::UP);
-			up.manhat_score = up.get_manhatan_score(maping_table);
-			if (up.manhat_score - up.moves.size() == 0) {
-				up.print_winner(start);
+			board[board_empty_place.x * side + board_empty_place.y] = board[(board_empty_place.x + 1) * side + board_empty_place.y];
+			board[(board_empty_place.x + 1) * side + board_empty_place.y] = 0;
+			board_empty_place.x = board_empty_place.x + 1;
+			moves.push_back(Ways::UP);
+			manhat_score = get_manhatan_score(maping_table);
+			if (manhat_score - moves.size() == 0) {
+				print_winner(start);
 				return true;
 			}
-			if (up.manhat_score <= curr_threshold) {
-				if (up.produce_new_states(start, maping_table)) {
+			if (manhat_score <= curr_threshold) {
+				if (produce_new_states(start, maping_table)) {
 					return true;
 				}
 			}
 			else {
-				next_threshold = next_threshold < up.manhat_score ? next_threshold : up.manhat_score;
+				next_threshold = next_threshold < manhat_score ? next_threshold : manhat_score;
 			}
+
+			board_empty_place.x = board_empty_place.x - 1;
+			board[(board_empty_place.x + 1) * side + board_empty_place.y] = board[board_empty_place.x * side + board_empty_place.y];
+			board[board_empty_place.x * side + board_empty_place.y] = 0;
+			moves.pop_back();
 		}
 
 		// DOWN
 		if (this->board_empty_place.x > 0 && (this->moves.size() == 0 || (this->moves.size() > 0 && this->moves[this->moves.size() - 1] != Ways::UP)))
 		{
-			BoardState down = BoardState();
-			down = deep_copy();
-			down.board[board_empty_place.x * side + board_empty_place.y] = board[(board_empty_place.x - 1) * side + board_empty_place.y];
-			down.board[(board_empty_place.x - 1) * side + board_empty_place.y] = 0;
-			down.board_empty_place.x = board_empty_place.x - 1;
-			down.moves.push_back(Ways::DOWN);
-			down.manhat_score = down.get_manhatan_score(maping_table);
-			if (down.manhat_score - down.moves.size() == 0) {
-				down.print_winner(start);
+			board[board_empty_place.x * side + board_empty_place.y] = board[(board_empty_place.x - 1) * side + board_empty_place.y];
+			board[(board_empty_place.x - 1) * side + board_empty_place.y] = 0;
+			board_empty_place.x = board_empty_place.x - 1;
+			moves.push_back(Ways::DOWN);
+			manhat_score = get_manhatan_score(maping_table);
+			if (manhat_score - moves.size() == 0) {
+				print_winner(start);
 				return true;
 			}
-			if (down.manhat_score <= curr_threshold) {
-				if (down.produce_new_states(start, maping_table)) {
+			if (manhat_score <= curr_threshold) {
+				if (produce_new_states(start, maping_table)) {
 					return true;
 				}
 			}
 			else {
-				next_threshold = next_threshold < down.manhat_score ? next_threshold : down.manhat_score;
+				next_threshold = next_threshold < manhat_score ? next_threshold : manhat_score;
 			}
+
+			board_empty_place.x = board_empty_place.x + 1;
+			board[(board_empty_place.x - 1) * side + board_empty_place.y] = board[board_empty_place.x * side + board_empty_place.y];
+			board[board_empty_place.x * side + board_empty_place.y] = 0;
+			moves.pop_back();
 
 		}
 
 		// LEFT
 		if (this->board_empty_place.y < side - 1 && (this->moves.size() == 0 || (this->moves.size() > 0 && this->moves[this->moves.size() - 1] != Ways::RIGHT)))
 		{
-			BoardState left = BoardState();
-			left = deep_copy();
-			left.board[board_empty_place.x * side + board_empty_place.y] = board[board_empty_place.x * side + board_empty_place.y + 1];
-			left.board[board_empty_place.x * side + board_empty_place.y + 1] = 0;
-			left.board_empty_place.y = board_empty_place.y + 1;
-			left.moves.push_back(Ways::LEFT);
-			left.manhat_score = left.get_manhatan_score(maping_table);
-			if (left.manhat_score - left.moves.size() == 0) {
-				left.print_winner(start);
+			board[board_empty_place.x * side + board_empty_place.y] = board[board_empty_place.x * side + board_empty_place.y + 1];
+			board[board_empty_place.x * side + board_empty_place.y + 1] = 0;
+			board_empty_place.y = board_empty_place.y + 1;
+			moves.push_back(Ways::LEFT);
+			manhat_score = get_manhatan_score(maping_table);
+			if (manhat_score - moves.size() == 0) {
+				print_winner(start);
 				return true;
 			}
-			if (left.manhat_score <= curr_threshold) {
-				if (left.produce_new_states(start, maping_table)) {
+			if (manhat_score <= curr_threshold) {
+				if (produce_new_states(start, maping_table)) {
 					return true;
 				}
 			}
 			else {
-				next_threshold = next_threshold < left.manhat_score ? next_threshold : left.manhat_score;
+				next_threshold = next_threshold < manhat_score ? next_threshold : manhat_score;
 			}
+
+			board_empty_place.y = board_empty_place.y - 1;
+			board[board_empty_place.x * side + board_empty_place.y + 1] = board[board_empty_place.x * side + board_empty_place.y];
+			board[board_empty_place.x * side + board_empty_place.y] = 0;
+			moves.pop_back();
 		}
 
 		// RIGHT
 		if (this->board_empty_place.y > 0 && (this->moves.size() == 0 || (this->moves.size() > 0 && this->moves[this->moves.size() - 1] != Ways::LEFT)))
 		{
-			BoardState right = BoardState();
-			right = deep_copy();
-			right.board[board_empty_place.x * side + board_empty_place.y] = board[board_empty_place.x * side + board_empty_place.y - 1];
-			right.board[board_empty_place.x * side + board_empty_place.y - 1] = 0;
-			right.board_empty_place.y = board_empty_place.y - 1;
-			right.moves.push_back(Ways::RIGHT);
-			right.manhat_score = right.get_manhatan_score(maping_table);
-			if (right.manhat_score - right.moves.size() == 0) {
-				right.print_winner(start);
+			board[board_empty_place.x * side + board_empty_place.y] = board[board_empty_place.x * side + board_empty_place.y - 1];
+			board[board_empty_place.x * side + board_empty_place.y - 1] = 0;
+			board_empty_place.y = board_empty_place.y - 1;
+			moves.push_back(Ways::RIGHT);
+			manhat_score = get_manhatan_score(maping_table);
+			if (manhat_score - moves.size() == 0) {
+				print_winner(start);
 				return true;
 			}
-			if (right.manhat_score <= curr_threshold) {
-				if (right.produce_new_states(start, maping_table)) {
+			if (manhat_score <= curr_threshold) {
+				if (produce_new_states(start, maping_table)) {
 					return true;
 				}
 			}
 			else {
-				next_threshold = next_threshold < right.manhat_score ? next_threshold : right.manhat_score;
+				next_threshold = next_threshold < manhat_score ? next_threshold : manhat_score;
 			}
+
+			board_empty_place.y = board_empty_place.y + 1;
+			board[board_empty_place.x * side + board_empty_place.y - 1] = board[board_empty_place.x * side + board_empty_place.y];
+			board[board_empty_place.x * side + board_empty_place.y] = 0;
+			moves.pop_back();
 		}
 		return false;
 	}
