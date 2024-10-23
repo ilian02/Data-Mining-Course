@@ -31,7 +31,7 @@ const int MAP_TABLE_SIZE = 128;
 const int WAYS_VECTOR_RESERVE = 40;
 const int THRESHOLD = 3;
 Coordinats maping_table[MAP_TABLE_SIZE];
-const bool USE_CLOCK = false;
+const bool USE_CLOCK = true;
 int side;
 int curr_threshold = 0;
 int next_threshold = 999;
@@ -43,34 +43,34 @@ struct BoardState
 	Coordinats board_empty_place = Coordinats(0, 0);
 	uint16_t manhat_score = 0;
 
-    void print_winner(std::chrono::high_resolution_clock::time_point& start) {
-        if (USE_CLOCK)
-        {
-            auto end = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> elapsed = end - start;
-            std::cout << std::fixed << std::setprecision(2);
-            std::cout << "Elapsed time: " << elapsed.count() << " seconds\n";
-        }
-        std::cout << moves.size() << "\n";
-        for (int j = 0; j < moves.size(); j++)
-        {
-            switch (moves[j])
-            {
-            case Ways::UP:
-                std::cout << "up\n";
-                break;
-            case Ways::DOWN:
-                std::cout << "down\n";
-                break;
-            case Ways::LEFT:
-                std::cout << "left\n";
-                break;
-            case Ways::RIGHT:
-                std::cout << "right\n";
-                break;
-            }
-        }
-    }
+	void print_winner(std::chrono::high_resolution_clock::time_point& start) {
+		if (USE_CLOCK)
+		{
+			auto end = std::chrono::high_resolution_clock::now();
+			std::chrono::duration<double> elapsed = end - start;
+			std::cout << std::fixed << std::setprecision(2);
+			std::cout << "Elapsed time: " << elapsed.count() << " seconds\n";
+		}
+		std::cout << moves.size() << "\n";
+		for (int j = 0; j < moves.size(); j++)
+		{
+			switch (moves[j])
+			{
+			case Ways::UP:
+				std::cout << "up\n";
+				break;
+			case Ways::DOWN:
+				std::cout << "down\n";
+				break;
+			case Ways::LEFT:
+				std::cout << "left\n";
+				break;
+			case Ways::RIGHT:
+				std::cout << "right\n";
+				break;
+			}
+		}
+	}
 
 	BoardState deep_copy() const
 	{
@@ -92,7 +92,7 @@ struct BoardState
 		return sum + moves.size();
 	}
 
-    bool produce_new_states(std::chrono::high_resolution_clock::time_point& start)
+	bool produce_new_states(std::chrono::high_resolution_clock::time_point& start)
 	{
 		// UP
 		if (this->board_empty_place.x < side - 1 && (this->moves.size() == 0 || (this->moves.size() > 0 && this->moves[this->moves.size() - 1] != Ways::DOWN)))
@@ -104,17 +104,18 @@ struct BoardState
 			up.board_empty_place.x = board_empty_place.x + 1;
 			up.moves.push_back(Ways::UP);
 			up.manhat_score = up.get_manhatan_score();
-            if (up.manhat_score == 0) {
-                up.print_winner(start);
-                return true;
-            }
-            if (up.manhat_score <= curr_threshold) {
-                if (up.produce_new_states(start)) {
-                    return true;
-                }
-            } else {
-                next_threshold = next_threshold > up.manhat_score ? next_threshold : up.manhat_score;
-            }
+			if (up.manhat_score - up.moves.size() == 0) {
+				up.print_winner(start);
+				return true;
+			}
+			if (up.manhat_score <= curr_threshold) {
+				if (up.produce_new_states(start)) {
+					return true;
+				}
+			}
+			else {
+				next_threshold = next_threshold < up.manhat_score ? next_threshold : up.manhat_score;
+			}
 		}
 
 		// DOWN
@@ -127,18 +128,19 @@ struct BoardState
 			down.board_empty_place.x = board_empty_place.x - 1;
 			down.moves.push_back(Ways::DOWN);
 			down.manhat_score = down.get_manhatan_score();
-            if (down.manhat_score == 0) {
-                down.print_winner(start);
-                return true;
-            }
-            if (down.manhat_score <= curr_threshold) {
-                if (down.produce_new_states(start)) {
-                    return true;
-                }
-            } else {
-                next_threshold = next_threshold > down.manhat_score ? next_threshold : down.manhat_score;
-            }
-		
+			if (down.manhat_score - down.moves.size() == 0) {
+				down.print_winner(start);
+				return true;
+			}
+			if (down.manhat_score <= curr_threshold) {
+				if (down.produce_new_states(start)) {
+					return true;
+				}
+			}
+			else {
+				next_threshold = next_threshold < down.manhat_score ? next_threshold : down.manhat_score;
+			}
+
 		}
 
 		// LEFT
@@ -151,17 +153,18 @@ struct BoardState
 			left.board_empty_place.y = board_empty_place.y + 1;
 			left.moves.push_back(Ways::LEFT);
 			left.manhat_score = left.get_manhatan_score();
-            if (left.manhat_score == 0) {
-                left.print_winner(start);
-                return true;
-            }
-            if (left.manhat_score <= curr_threshold) {
-                if (left.produce_new_states(start)) {
-                    return true;
-                }
-            } else {
-                next_threshold = next_threshold > left.manhat_score ? next_threshold : left.manhat_score;
-            }
+			if (left.manhat_score - left.moves.size() == 0) {
+				left.print_winner(start);
+				return true;
+			}
+			if (left.manhat_score <= curr_threshold) {
+				if (left.produce_new_states(start)) {
+					return true;
+				}
+			}
+			else {
+				next_threshold = next_threshold < left.manhat_score ? next_threshold : left.manhat_score;
+			}
 		}
 
 		// RIGHT
@@ -174,23 +177,24 @@ struct BoardState
 			right.board_empty_place.y = board_empty_place.y - 1;
 			right.moves.push_back(Ways::RIGHT);
 			right.manhat_score = right.get_manhatan_score();
-            if (right.manhat_score == 0) {
-                right.print_winner(start);
-                return true;
-            }
-            if (right.manhat_score <= curr_threshold) {
-                if (right.produce_new_states(start)) {
-                    return true;
-                }
-            } else {
-                next_threshold = next_threshold > right.manhat_score ? next_threshold : right.manhat_score;
-            }
+			if (right.manhat_score - right.moves.size() == 0) {
+				right.print_winner(start);
+				return true;
+			}
+			if (right.manhat_score <= curr_threshold) {
+				if (right.produce_new_states(start)) {
+					return true;
+				}
+			}
+			else {
+				next_threshold = next_threshold < right.manhat_score ? next_threshold : right.manhat_score;
+			}
 		}
-        return false;
+		return false;
 	}
 };
 
-bool check_if_possible(const BoardState &starting_state)
+bool check_if_possible(const BoardState& starting_state)
 {
 	int inversion = 0;
 
@@ -307,26 +311,17 @@ int main()
 		return 0;
 	}
 
-	uint16_t threshold = THRESHOLD;
-	uint16_t next_threshold = THRESHOLD + 1;
-
 	while (true)
 	{
-        if (starting_state.produce_new_states(start)) {
-            return 0;
-        } else {
-            /*
-            if (curr_threshold >= next_threshold) {
-                curr_threshold += 1;
-            } else {
-                curr_threshold = ++next_threshold;
-            }
-            std::cout << next_threshold << "\n";
-            */
-           curr_threshold++;
-        }
+		if (starting_state.produce_new_states(start)) {
+			return 0;
+		}
+		else {
+			curr_threshold = next_threshold;
+			next_threshold = 999;
+		}
 
-    }
+	}
 	std::cout << "How are you here???\n";
 	return 0;
 }
