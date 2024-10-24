@@ -94,13 +94,22 @@ struct BoardState
 	bool produce_new_states(std::chrono::high_resolution_clock::time_point& start, Coordinats maping_table[])
 	{
 		// UP
+		this->manhat_score++;
+		int old_manhat = this->manhat_score;
+
 		if (this->board_empty_place.x < side - 1 && (this->moves.size() == 0 || (this->moves.size() > 0 && this->moves[this->moves.size() - 1] != Ways::DOWN)))
 		{
 			board[board_empty_place.x * side + board_empty_place.y] = board[(board_empty_place.x + 1) * side + board_empty_place.y];
-			board[(board_empty_place.x + 1) * side + board_empty_place.y] = 0;
-			board_empty_place.x = board_empty_place.x + 1;
 			moves.push_back(Ways::UP);
-			manhat_score = get_manhatan_score(maping_table);
+			int number_moved = board[board_empty_place.x * side + board_empty_place.y];
+
+			this->manhat_score -= abs(board_empty_place.x - maping_table[number_moved].x + 1) + abs(board_empty_place.y - maping_table[number_moved].y);
+			this->manhat_score += abs(board_empty_place.x - maping_table[number_moved].x) + abs(board_empty_place.y - maping_table[number_moved].y);
+
+			board[(board_empty_place.x + 1) * side + board_empty_place.y] = 0;
+			board_empty_place.x++;
+
+
 			if (manhat_score - moves.size() == 0) {
 				print_winner(start);
 				return true;
@@ -114,20 +123,25 @@ struct BoardState
 				next_threshold = next_threshold < manhat_score ? next_threshold : manhat_score;
 			}
 
-			board_empty_place.x = board_empty_place.x - 1;
+			board_empty_place.x--;
 			board[(board_empty_place.x + 1) * side + board_empty_place.y] = board[board_empty_place.x * side + board_empty_place.y];
 			board[board_empty_place.x * side + board_empty_place.y] = 0;
 			moves.pop_back();
 		}
 
+		this->manhat_score = old_manhat;
 		// DOWN
 		if (this->board_empty_place.x > 0 && (this->moves.size() == 0 || (this->moves.size() > 0 && this->moves[this->moves.size() - 1] != Ways::UP)))
 		{
 			board[board_empty_place.x * side + board_empty_place.y] = board[(board_empty_place.x - 1) * side + board_empty_place.y];
+			int number_moved = board[board_empty_place.x * side + board_empty_place.y];
+			this->manhat_score -= abs(board_empty_place.x - maping_table[number_moved].x - 1) + abs(board_empty_place.y - maping_table[number_moved].y);
+			this->manhat_score += abs(board_empty_place.x - maping_table[number_moved].x) + abs(board_empty_place.y - maping_table[number_moved].y);
+
+
 			board[(board_empty_place.x - 1) * side + board_empty_place.y] = 0;
-			board_empty_place.x = board_empty_place.x - 1;
+			board_empty_place.x--;
 			moves.push_back(Ways::DOWN);
-			manhat_score = get_manhatan_score(maping_table);
 			if (manhat_score - moves.size() == 0) {
 				print_winner(start);
 				return true;
@@ -141,21 +155,26 @@ struct BoardState
 				next_threshold = next_threshold < manhat_score ? next_threshold : manhat_score;
 			}
 
-			board_empty_place.x = board_empty_place.x + 1;
+			board_empty_place.x++;
 			board[(board_empty_place.x - 1) * side + board_empty_place.y] = board[board_empty_place.x * side + board_empty_place.y];
 			board[board_empty_place.x * side + board_empty_place.y] = 0;
 			moves.pop_back();
-
 		}
 
+		this->manhat_score = old_manhat;
 		// LEFT
 		if (this->board_empty_place.y < side - 1 && (this->moves.size() == 0 || (this->moves.size() > 0 && this->moves[this->moves.size() - 1] != Ways::RIGHT)))
 		{
 			board[board_empty_place.x * side + board_empty_place.y] = board[board_empty_place.x * side + board_empty_place.y + 1];
+
+			int number_moved = board[board_empty_place.x * side + board_empty_place.y];
+
+			this->manhat_score -= abs(board_empty_place.x - maping_table[number_moved].x) + abs(board_empty_place.y - maping_table[number_moved].y + 1);
+			this->manhat_score += abs(board_empty_place.x - maping_table[number_moved].x) + abs(board_empty_place.y - maping_table[number_moved].y);
+
 			board[board_empty_place.x * side + board_empty_place.y + 1] = 0;
-			board_empty_place.y = board_empty_place.y + 1;
+			board_empty_place.y++;
 			moves.push_back(Ways::LEFT);
-			manhat_score = get_manhatan_score(maping_table);
 			if (manhat_score - moves.size() == 0) {
 				print_winner(start);
 				return true;
@@ -169,20 +188,24 @@ struct BoardState
 				next_threshold = next_threshold < manhat_score ? next_threshold : manhat_score;
 			}
 
-			board_empty_place.y = board_empty_place.y - 1;
+			board_empty_place.y--;
 			board[board_empty_place.x * side + board_empty_place.y + 1] = board[board_empty_place.x * side + board_empty_place.y];
 			board[board_empty_place.x * side + board_empty_place.y] = 0;
 			moves.pop_back();
 		}
 
+		this->manhat_score = old_manhat;
 		// RIGHT
 		if (this->board_empty_place.y > 0 && (this->moves.size() == 0 || (this->moves.size() > 0 && this->moves[this->moves.size() - 1] != Ways::LEFT)))
 		{
 			board[board_empty_place.x * side + board_empty_place.y] = board[board_empty_place.x * side + board_empty_place.y - 1];
+
+			int number_moved = board[board_empty_place.x * side + board_empty_place.y];
+			this->manhat_score -= abs(board_empty_place.x - maping_table[number_moved].x) + abs(board_empty_place.y - maping_table[number_moved].y - 1);
+			this->manhat_score += abs(board_empty_place.x - maping_table[number_moved].x) + abs(board_empty_place.y - maping_table[number_moved].y);
 			board[board_empty_place.x * side + board_empty_place.y - 1] = 0;
-			board_empty_place.y = board_empty_place.y - 1;
+			board_empty_place.y--;
 			moves.push_back(Ways::RIGHT);
-			manhat_score = get_manhatan_score(maping_table);
 			if (manhat_score - moves.size() == 0) {
 				print_winner(start);
 				return true;
@@ -196,10 +219,11 @@ struct BoardState
 				next_threshold = next_threshold < manhat_score ? next_threshold : manhat_score;
 			}
 
-			board_empty_place.y = board_empty_place.y + 1;
+			board_empty_place.y++;
 			board[board_empty_place.x * side + board_empty_place.y - 1] = board[board_empty_place.x * side + board_empty_place.y];
 			board[board_empty_place.x * side + board_empty_place.y] = 0;
 			moves.pop_back();
+
 		}
 		return false;
 	}
@@ -324,12 +348,15 @@ int main()
 		return 0;
 	}
 
+	int starting_manhat = starting_state.manhat_score;
+
 	while (true)
 	{
 		if (starting_state.produce_new_states(start, maping_table)) {
 			return 0;
 		}
 		else {
+			starting_state.manhat_score = starting_manhat;
 			curr_threshold = next_threshold;
 			next_threshold = 999;
 		}
