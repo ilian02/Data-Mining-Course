@@ -30,7 +30,7 @@ int final_empty_place;
 const int MAP_TABLE_SIZE = 128;
 const int WAYS_VECTOR_RESERVE = 40;
 const int THRESHOLD = 3;
-const bool USE_CLOCK = false;
+const bool USE_CLOCK = true;
 int side;
 int curr_threshold = 0;
 int next_threshold = 99999;
